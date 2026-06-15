@@ -21,7 +21,8 @@ jobs:
       - name: Download as MP4
         run: >
           yt-dlp
-          -f "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/b[height<=1080]"
+          --extractor-args "youtube:player_client=tv,web_safari,ios,android"
+          -f "bv*[height<=1080]+ba/b[height<=1080]/b"
           --merge-output-format mp4
           --force-overwrites
           -o "${{ inputs.output_name }}.mp4"
