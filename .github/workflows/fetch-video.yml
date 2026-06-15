@@ -1,0 +1,35 @@
+name: Fetch background video
+on:
+  workflow_dispatch:
+    inputs:
+      youtube_url:
+        description: "YouTube URL to convert to MP4"
+        required: true
+      output_name:
+        description: "Output filename (no extension)"
+        required: true
+        default: "background"
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yt-dlp
+        run: pip install -U yt-dlp
+      - name: Download as MP4
+        run: >
+          yt-dlp
+          -f "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/b[height<=1080]"
+          --merge-output-format mp4
+          --force-overwrites
+          -o "${{ inputs.output_name }}.mp4"
+          "${{ inputs.youtube_url }}"
+      - name: Commit to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f "${{ inputs.output_name }}.mp4"
+          git commit -m "Add ${{ inputs.output_name }}.mp4" || echo "No changes"
+          git push
